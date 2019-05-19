@@ -11,6 +11,8 @@ router.post('/user/register',user.register)
 router.post('/user/getValid',user.getValid)
 router.post('/user/getData',user.getData)
 router.post('/user/bidRoom',user.bidRoom)
+router.get('/user/bidInvalid',user.bidInvalid)
+router.post('/user/rentRoom',user.rentRoom)
 
 // 管理员操作
 router.post('/admin/login',admin.login)
@@ -30,6 +32,7 @@ router.get('/checkToken/getInfo',checkToken.getInfo)
 router.get('/common/getRoomDate',common.getRoomDate)
 router.get('/common/getCarData',common.getCarData)
 router.post('/common/endPark',common.endPark)
+router.post('/common/insertCar',common.insertCar)
 
 
 module.exports = router

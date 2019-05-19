@@ -97,3 +97,26 @@ exports.bidRoom = async ctx => {
         }
     })
 }
+
+exports.bidInvalid = async ctx => {
+    let bidInvalidSQL = `update room set isUse=0,user='',rentStartTime='',rentEndTime='',assignTime='' where (rentStartTime != '' AND rentEndTime < unix_timestamp(now())*1000) or (assignTime < unix_timestamp(now())*1000-259200000 AND assignTime != '' AND rentStartTime = '')`;
+    await query(bidInvalidSQL).then(res => {
+        ctx.body = {
+            message:'更改成功'
+        }
+    })
+}
+
+exports.rentRoom = async ctx => {
+    let data = ctx.request.body;
+    // let rentRoomSQL = `update room set rentEndTime=(case when rentStartTime='' then unix_timestamp(now())*1000 else rentStartTime+1000 end) where code='002'; `;
+    let rentRoomSQL = `update room set rentStartTime = '${new Date().getTime()}' where rentStartTime='' and code='${data.code}'`;
+    await query(rentRoomSQL);
+    // let rentRoomSQL2 = `update room set rentEndTime=rentStartTime+1000*60*60*24*30*${data.month} where code='${data.code}'`;
+    let rentRoomSQL2 = `update room set rentEndTime=(case when rentEndTime='' then rentStartTime+1000*60*60*24*30*${data.month} else rentEndTime+1000*60*60*24*30*${data.month} end) where code='${data.code}'`;
+    await query(rentRoomSQL2).then(res => {
+        ctx.body = {
+            msg:'租赁成功'
+        }
+    })
+}

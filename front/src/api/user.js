@@ -1,5 +1,4 @@
-import { post } from '@/utils/httpRequest'
-
+import { get,post } from '@/utils/httpRequest'
 
 export function getData(name) {
     let data = {
@@ -14,6 +13,19 @@ export function getData(name) {
 export function bidRoom(data){
     return post({
         url: '/user/bidRoom',
+        data
+    })
+}
+
+export function bidInvalid(){
+    return get({
+        url: '/user/bidInvalid'
+    })
+}
+
+export function rentRoom(data){
+    return post({
+        url: '/user/rentRoom',
         data
     })
 }

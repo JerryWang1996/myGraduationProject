@@ -2,8 +2,8 @@
     <div style="padding-top:10px">
         <div class="container">
             <div class="head">
-                <img src="..\..\static\img\logo\logo.jpg" alt="北辰物流园区" class="banner">
-                <img src="..\..\static\img\logo\logo1.jpg" alt="" class="banner1">
+                <img src="static\img\logo\logo.jpg" alt="天津华北集团物流园区" class="banner">
+                <img src="static\img\logo\logo1.jpg" alt="" class="banner1">
                 <span class="login" @click="jump('user')"><i class="fa fa-user"></i>登录</span>
             </div>
         </div>
@@ -70,6 +70,22 @@
         v-model="search"
         size="medium"
         placeholder="输入车牌号搜索"/>
+        <el-button icon="el-icon-circle-plus" circle size="mini" type="primary" @click="dialogVisible=true"></el-button>
+        <el-dialog
+            title="停车模拟"
+            :visible.sync="dialogVisible"
+            width="30%"
+            :before-close="handleClose">
+            <el-form size="medium" label-width="80px" ref="car"  :model="parkingCar" :rules="rules">
+            <el-form-item label="车牌号"  prop="num">
+                <el-input v-model="parkingCar.num"></el-input>
+            </el-form-item>
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="resetForm('car')">取 消</el-button>
+                <el-button type="primary" @click="submitForm('car')">增 加</el-button>
+            </span>
+        </el-dialog>
             <el-table
             :data="carData"
             height="500"
@@ -175,7 +191,8 @@
     </div>
 </template>
 <script>
-import {getRoomDate,getCarData,endPark} from '@/api/common'
+import {getRoomDate,getCarData,endPark,insertCar} from '@/api/common'
+import {dateUtil} from '@/utils/common'
 export default {
     data(){
         return {
@@ -185,7 +202,15 @@ export default {
             tempCarData:[],
             search:'',
             carMoney:0,
-            parkingDate:[]
+            parkingDate:[],
+            dialogVisible:false,
+            parkingCar:{
+                num:''
+            },
+            rules: {
+                num: [{ required: true, message: '请输入车牌号', trigger: 'blur' },
+                { min: 1 ,message: '车牌号不能为空', trigger: 'blur' }]
+            }
         }
     },
     created(){
@@ -211,6 +236,36 @@ export default {
         },
         handleSelect(key) {
             this.activeIndex = key;
+        },
+        handleClose(done) {
+            this.$confirm('确认关闭？').then(_ => {
+                done();
+            }).catch(_ => {});
+        },
+        resetForm(formName){
+            this.$refs[formName].resetFields();
+            this.dialogVisible=false;
+        },
+        submitForm(formName){
+            this.$refs[formName].validate((valid) => {
+            if (valid) {
+                insertCar(this.parkingCar).then(_ => {
+                    this.$message({
+                    type: 'success',
+                    message: _.message
+                    });
+                    getCarData().then(_ => {
+                        this.carData = _.data.car;
+                        this.tempCarData = _.data.car;
+                        this.carMoney = _.data.carMoney[0].carMoney;
+                        this.parkingDate = [];
+                    });
+                    this.dialogVisible=false;
+                })
+            } else {
+                return false;
+            }
+            });
         },
         endParking(row,index){
             if(this.parkingDate[index] == undefined){
@@ -270,7 +325,7 @@ export default {
     float: left;
     width: 154px;
     margin-top: 18px;
-    margin-left: 160px;
+    margin-left: 100px;
 }
 .head{
     width: 100%;
@@ -369,6 +424,7 @@ export default {
 .search{
     padding: 10px;
     width: 200px;
+    margin-left: 30px;
     box-sizing: border-box;
     display: inline-block;
     transform: translate(-400px);

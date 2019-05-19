@@ -18,3 +18,10 @@ export function endPark(data){
         data
     })
 }
+
+export function insertCar(data){
+    return post({
+        url:'/common/insertCar',
+        data
+    })
+}

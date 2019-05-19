@@ -39,7 +39,7 @@ exports.change = async ctx =>{
 
 exports.newWarehouse = async ctx =>{
     let data = ctx.request.body;
-    let newWarehouseSQL = `insert into room (code,size,price1,price2,price3,price4,tel,description,isUse,user) values("${data.code}","${data.size}","${data.price1}","${data.price2}","${data.price3}","${data.price4}","${data.tel}","${data.description}","0","") on duplicate key update size="${data.size}",price1="${data.price1}",price2="${data.price2}",price3="${data.price3}",price4="${data.price4}",tel="${data.tel}",description="${data.description}",isUse="0",user=""`;
+    let newWarehouseSQL = `insert into room (code,size,price1,price2,price3,price4,tel,description,isUse,user,rentStartTime,rentEndTime) values("${data.code}","${data.size}","${data.price1}","${data.price2}","${data.price3}","${data.price4}","${data.tel}","${data.description}","0","","","") on duplicate key update size="${data.size}",price1="${data.price1}",price2="${data.price2}",price3="${data.price3}",price4="${data.price4}",tel="${data.tel}",description="${data.description}",isUse="0",user=""`;
     await query(newWarehouseSQL).then(res => {
         ctx.body = {
             msg:'新增或修改仓库成功'
@@ -78,7 +78,7 @@ exports.deleteRoom = async ctx => {
 
 exports.rentToHim = async ctx => {
     let data = ctx.request.body;
-    let rentSQL = `update room set isUse="1",user="${data.user}" where code="${data.code}"`;
+    let rentSQL = `update room set isUse="1",user="${data.user}",assignTime="${new Date().getTime()}" where code="${data.code}"`;
     await query(rentSQL).then(_ => {
         ctx.body = {
             msg:'操作成功'

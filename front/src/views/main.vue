@@ -116,28 +116,28 @@
                     </el-table-column>
                     <el-table-column
                     prop="size"
-                    label="仓库面积"
-                    width="100">
+                    label="仓库面积(m²)"
+                    width="130">
                     </el-table-column>
                     <el-table-column
                     prop="price1"
-                    label="房租"
-                    width="100">
+                    label="房租(元/月)"
+                    width="130">
                     </el-table-column>
                     <el-table-column
                     prop="price2"
-                    label="物业费"
-                    width="100">
+                    label="物业费(元/月)"
+                    width="130">
                     </el-table-column>
                     <el-table-column
                     prop="price3"
-                    label="水电费"
-                    width="100">
+                    label="水电费(元/月)"
+                    width="130">
                     </el-table-column>
                     <el-table-column
                     prop="price4"
-                    label="停车费"
-                    width="100">
+                    label="停车费(元/月)"
+                    width="130">
                     </el-table-column>
                     <el-table-column
                     prop="tel"
@@ -150,16 +150,21 @@
                     width="200">
                     </el-table-column>
                     <el-table-column
+                    prop="assignTime"
+                    label="竞价成功时间"
+                    width="200">
+                    <template slot-scope="scope">{{scope.row.assignTime == ''?'':new Date(Number(scope.row.assignTime))}}</template>
+                    </el-table-column>
+                    <el-table-column
                     label="开始时间"
                     width="200">
-                    <template>
-                        <span>{{today}}</span>
-                    </template>
+                    <template slot-scope="scope">{{scope.row.rentStartTime == ''?'':new Date(Number(scope.row.rentStartTime))}}</template>
                     </el-table-column>
                     <el-table-column
                     prop="endDay"
                     label="结束时间"
                     width="200">
+                    <template slot-scope="scope">{{scope.row.rentEndTime == ''?'':new Date(Number(scope.row.rentEndTime))}}</template>
                     </el-table-column>
                     <el-table-column
                     label="操作"
@@ -168,45 +173,11 @@
                     <template slot-scope="scope">
                         <el-button
                         size="mini"
-                        @click="renew(scope.$index, scope.row)">租赁</el-button>
+                        @click="renew(scope.$index, scope.row)">租赁/续费</el-button>
                     </template>
                     </el-table-column>
                 </el-table>
             </div>
-            <!-- <div style="padding:20px">
-                <el-table
-                :data="carTableData"
-                height="300"
-                border
-                size="medium"
-                style="width: 100%">
-                    <el-table-column
-                    prop="car"
-                    label="车牌号码"
-                    width="200">
-                    </el-table-column>
-                    <el-table-column
-                    label="价格"
-                    width="200">
-                    <template >
-                        <span>{{carMoney}}</span>
-                    </template>
-                    </el-table-column>
-                    <el-table-column
-                    prop="startParking"
-                    label="开始时间">
-                    </el-table-column>
-                    <el-table-column
-                    label="操作"
-                    width="200">
-                    <template slot-scope="scope">
-                        <el-button
-                        size="medium"
-                        @click="settle(scope.$index, scope.row)">结账</el-button>
-                    </template>
-                    </el-table-column>
-                </el-table>
-            </div> -->
         </div>
     </div>
     <div v-show="this.activeIndex==3" class="item">
@@ -255,10 +226,10 @@
 import {getInfo} from '@/api/getInfo'
 import { removeToken } from '@/utils/auth'
 import {getRoomDate} from '@/api/common'
-import {getData,bidRoom} from '@/api/user'
+import {getData,bidRoom,bidInvalid,rentRoom} from '@/api/user'
 export default {
     data(){
-        const date = new Date();
+        // const date = new Date();
         return {
             userName:'',
             activeIndex:'',
@@ -270,8 +241,9 @@ export default {
             pay:{},
             rules:{},
             roomData:[],
-            today:date.getFullYear()+' '+ (date.getMonth()+1)+'-'+date.getDate(),
+            // today:date.getFullYear()+' '+ (date.getMonth()+1)+'-'+date.getDate(),
             // carMoney:'',
+            rent:{},
             payTime:'',
             payTimeUnit:'',
             payTimeShow:false
@@ -283,6 +255,28 @@ export default {
             getData(this.userName).then(_ => {
                 // this.balance = _.data.data[0] == undefined?0:_.data.data[0].balance;
                 this.roomTableData = _.data;
+                if(this.roomTableData.length != 0){
+                    this.roomTableData.some( _ =>{
+                        if(new Date().getTime() - _.assignTime < 259200000 && _.rentStartTime == ''){
+                            this.$alert('您有竞标的仓库没完成交费，超过三天将被回收','提示',{
+                                confirmButtonText:'确定',
+                                callback:action =>{
+                                    this.activeIndex=2;
+                                }
+                            });
+                        }
+                        if(new Date().getTime() - _.assignTime > 259200000 && _.rentStartTime == '' || _.rentEndTime < new Date().getTime()){
+                            bidInvalid().then(()=>{
+                                getData(this.userName).then(_ => {
+                                    this.roomTableData = _.data;
+                                })
+                                getRoomDate().then(_ => {
+                                    this.roomData = _.room;
+                                })
+                            });
+                        }
+                    })
+                }
                 // this.carTableData = [_.data.data[0]];
                 // this.carMoney = _.data.carMoney[0].carMoney;
             })
@@ -302,6 +296,7 @@ export default {
         renew(index, row) {
             // console.log(index, row);
             // window.open('https://auth.alipay.com/login/index.htm');
+            this.rent.code=row.code;
             this.dialogVisible=true;
         },
         // settle(){
@@ -327,12 +322,21 @@ export default {
         submitForm(formName){
             this.$refs[formName].validate((valid) => {
             if (valid) {
-                window.open('https://auth.alipay.com/login/index.htm');
-                this.dialogVisible=false;
-                this.payTimeShow=false;
-                this.payTime='';
-                this.payTimeUnit='';
-                this.pay={};
+                // window.open('https://auth.alipay.com/login/index.htm');
+                // this.rent.code
+                let month=this.payTimeUnit=='月' ? this.payTime*1 : this.payTimeUnit=='季度' ? this.payTime*4:this.payTime*12;
+                rentRoom({code:this.rent.code,month}).then(_ => {
+                    this.dialogVisible=false;
+                    this.payTimeShow=false;
+                    this.payTime='';
+                    this.payTimeUnit='';
+                    this.pay={};
+                }).then(()=>{
+                    getData(this.userName).then(_ => {
+                        this.roomTableData = _.data;
+                    })
+                })
+                
             } else {
                 return false;
             }

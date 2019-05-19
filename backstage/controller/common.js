@@ -27,3 +27,15 @@ exports.endPark = async ctx => {
         }
     })
 }
+
+exports.insertCar = async ctx => {
+    let data = ctx.request.body;
+    let date = new Date();
+    let time = date.getFullYear() + '-' + date.getMonth() + '-' + (date.getDate()+1) + ' ' + date.getHours() +':00';
+    let insertSQL = `insert into parking (car,startParking) values('${data.num}','${time}')`;
+    await query(insertSQL).then(_ => {
+        ctx.body = {
+            message:'操作成功'
+        }
+    })
+}
