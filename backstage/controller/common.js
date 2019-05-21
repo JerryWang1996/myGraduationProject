@@ -31,7 +31,11 @@ exports.endPark = async ctx => {
 exports.insertCar = async ctx => {
     let data = ctx.request.body;
     let date = new Date();
+<<<<<<< HEAD
     let time = date.getFullYear() + '-' + (date.getMonth()+1) + '-' + (date.getDate()+1) + ' ' + date.getHours() +':00';
+=======
+    let time = date.getFullYear() + '-' + date.getMonth() + '-' + (date.getDate()+1) + ' ' + date.getHours() +':00';
+>>>>>>> b492a72cd24a3e152e5bbee967e0cc0f84b36be0
     let insertSQL = `insert into parking (car,startParking) values('${data.num}','${time}')`;
     await query(insertSQL).then(_ => {
         ctx.body = {

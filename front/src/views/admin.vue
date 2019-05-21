@@ -134,7 +134,11 @@
     <el-dialog
     title="新增(修改)仓库"
     :visible.sync="dialogVisible"
+<<<<<<< HEAD
     width="35%"
+=======
+    width="30%"
+>>>>>>> b492a72cd24a3e152e5bbee967e0cc0f84b36be0
     :before-close="handleClose">
         <el-form :label-position="labelPosition" size="medium" label-width="120px" ref="roomFrom"  :model="roomFromData" :rules="rules">
         <el-form-item label="仓库号码"  prop="code">

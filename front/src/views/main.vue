@@ -153,18 +153,30 @@
                     prop="assignTime"
                     label="竞价成功时间"
                     width="200">
+<<<<<<< HEAD
                     <template slot-scope="scope">{{scope.row.assignTime == ''?'':new Date(Number(scope.row.assignTime)).toLocaleDateString()}}</template>
+=======
+                    <template slot-scope="scope">{{scope.row.assignTime == ''?'':new Date(Number(scope.row.assignTime))}}</template>
+>>>>>>> b492a72cd24a3e152e5bbee967e0cc0f84b36be0
                     </el-table-column>
                     <el-table-column
                     label="开始时间"
                     width="200">
+<<<<<<< HEAD
                     <template slot-scope="scope">{{scope.row.rentStartTime == ''?'':new Date(Number(scope.row.rentStartTime)).toLocaleDateString()}}</template>
+=======
+                    <template slot-scope="scope">{{scope.row.rentStartTime == ''?'':new Date(Number(scope.row.rentStartTime))}}</template>
+>>>>>>> b492a72cd24a3e152e5bbee967e0cc0f84b36be0
                     </el-table-column>
                     <el-table-column
                     prop="endDay"
                     label="结束时间"
                     width="200">
+<<<<<<< HEAD
                     <template slot-scope="scope">{{scope.row.rentEndTime == ''?'':new Date(Number(scope.row.rentEndTime)).toLocaleDateString()}}</template>
+=======
+                    <template slot-scope="scope">{{scope.row.rentEndTime == ''?'':new Date(Number(scope.row.rentEndTime))}}</template>
+>>>>>>> b492a72cd24a3e152e5bbee967e0cc0f84b36be0
                     </el-table-column>
                     <el-table-column
                     label="操作"
